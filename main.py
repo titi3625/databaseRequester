@@ -11,7 +11,7 @@ class programm():
 
     def __init__(self, name):
         self.root = Tk()
-        self.root.geometry("800x600+300+300")
+        self.root.geometry("800x500+250+250")
         self.root.title(name)
         self.root.style = Style()
         self.root.style.theme_use("clam")
@@ -33,7 +33,7 @@ class programm():
         
 
     def addMenuFrame(self, label, frameFunction):
-        function = lambda:self.setFrame(frameFunction)
+        function = self.setFrame(frameFunction)
         self.addMenu(label, function)
 
     def setFrame(self, creationFunction):
@@ -56,27 +56,41 @@ def planRequestFrame(root):
     app = Frame(root)
     app.pack(fill=BOTH, expand=1)
 
-    # Add the textbox frame
-    fRequest = Frame(app)
-    fRequest.style = Style()
-    fRequest.style.theme_use("clam")
-    fRequest.pack(fill=BOTH, expand=1)
+    # Ajout de la frame contenant les instruments de recherche
+    searchFrame = Frame(app, width=800, height=100, borderwidth=0)
+    searchFrame.pack(fill=BOTH)
 
-    area = Text(fRequest)
-    area.pack(fill=BOTH, expand=1)
+    # Ajout du champ de recherche
+    labelPlan = Label(searchFrame, text="Rechercher un plan : ")
+    labelPlan.pack(side=LEFT, padx=10, pady=10)
 
-    area.insert("1.0", "EXEMPLE\n001770 000000\n00981355")
-    #area.insert("1.0", "80984252")
+    plan = StringVar()
+    searchEntry = Entry(searchFrame, textvariable=plan, width=30)
+    searchEntry.pack(side=LEFT, padx=10, pady=10)
 
-    # Request parsing and performing
-    def getText(area):
+    # Ajout de la frame contenant les résultats
+    resultFrame = Frame(app, width=800, height=600, borderwidth=0)
+    resultFrame.pack(fill=BOTH, padx=10, pady=10)
+
+    textbox = Text(resultFrame)
+    textbox.pack(side=BOTTOM, fill=BOTH)
+
+    # Ajout de la frame de pied de page
+    footFrame = Frame(app, width=800, height=100, borderwidth=0)
+    footFrame.pack(fill=BOTH)
+
+    quitButton = Button(footFrame, text="Quitter", command=root.quit)
+    quitButton.pack(side=RIGHT, padx=10, pady=10)
+
+    ## Request parsing and performing
+    def getText(plan):
         # Get the content, slice it and remove empty lines
-        areaContent = area.get("1.0", "end")
-        areaLines = areaContent.split('\n')
-        while '' in areaLines: areaLines.remove('')
+        content = plan.get()
+        listPlan = [content]
+        #while ' ' in content: content.remove(' ')
 
         # Perform the request
-        result, success, error = requests.requestPlanList(areaLines)
+        result, success, error = requests.requestPlanList(listPlan)
 
         # Format the output string
         result = [';'.join(t) for t in result]
@@ -95,11 +109,12 @@ def planRequestFrame(root):
         
         return  fs
 
-    fun = lambda: area.replace("1.0", "end", getText(area));
 
-    # Add the button
-    researsh = Button(app, text="Rechercher les plans", command=fun)
-    researsh.pack(fill=BOTH, expand=1)
+    fun = lambda: textbox.insert(END, getText(plan));
+
+    # Ajout du bouton de recherche
+    searchButton = Button(searchFrame, text="Rechercher", command=fun)
+    searchButton.pack(side=LEFT, padx=10, pady=10)
 
     return app
 
