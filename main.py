@@ -3,6 +3,7 @@
 
 from tkinter import *
 from tkinter.ttk import *
+from tkinter.messagebox import *
 from database import edb, idb
 import requests
 
@@ -13,8 +14,8 @@ class programm():
         self.root = Tk()
         self.root.geometry("800x500+250+250")
         self.root.title(name)
-        self.root.style = Style()
-        self.root.style.theme_use("clam")
+        #self.root.style = Style()
+        #self.root.style.theme_use("clam")
 
         # Initialize the menu
         self.menu = Menu(self.root)
@@ -85,32 +86,36 @@ def planRequestFrame(root):
     ## Request parsing and performing
     def getText(plan):
         # Get the content, slice it and remove empty lines
-        content = plan.get()
-        listPlan = [content]
-        #while ' ' in content: content.remove(' ')
+        if plan.get() != "":
+            content = plan.get()
 
-        # Perform the request
-        result, success, error = requests.requestPlanList(listPlan)
+            # nattoyage et decoupe de la chaine
+            content = content.replace(" ", "").split(',')
 
-        # Format the output string
-        result = [';'.join(t) for t in result]
-        fs = ""
-        if result:
-            fs += "SYMB_COMP;DESIGN;QTE\n"
-            fs += '\n'.join(result) + '\n\n'
+            # Perform the request
+            result, success, error = requests.requestPlanList(content)
 
-        if success:
-            fs += "Requêtes effectuées :\n"
-            fs += '\n'.join(success) + '\n\n'
+            # Format the output string
+            result = [';'.join(t) for t in result]
+            fs = ""
+            if result:
+                fs += "SYMB_COMP;DESIGN;QTE\n"
+                fs += '\n'.join(result) + '\n\n'
 
-        if error:
-            fs += "Requêtes echouées :\n"
-            fs += '\n'.join(error) + '\n\n'
-        
-        return  fs
+            if success:
+                fs += "Requêtes effectuées :\n"
+                fs += '\n'.join(success) + '\n\n'
+
+            if error:
+                fs += "Requêtes echouées :\n"
+                fs += '\n'.join(error) + '\n\n'
+            
+            return fs
+        else:
+            messagebox.showerror("Vous devez saisir un numéro de plan")
 
 
-    fun = lambda: textbox.insert(END, getText(plan));
+    fun = lambda:textbox.insert(END, getText(plan));
 
     # Ajout du bouton de recherche
     searchButton = Button(searchFrame, text="Rechercher", command=fun)
