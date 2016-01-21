@@ -112,10 +112,13 @@ def planRequestFrame(root):
             
             return fs
         else:
-            messagebox.showerror("Vous devez saisir un numéro de plan")
+            showerror("Erreur", "Vous devez saisir un numéro de plan")
+            return False
 
-
-    fun = lambda:textbox.insert(END, getText(plan));
+    def fun():
+        result = getText(plan)
+        if result != False:
+            textbox.insert(END, result);
 
     # Ajout du bouton de recherche
     searchButton = Button(searchFrame, text="Rechercher", command=fun)
