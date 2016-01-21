@@ -12,14 +12,8 @@ class programm():
 
     def __init__(self, name):
         self.root = Tk()
-        self.root.geometry("800x500+250+250")
+        center(self.root, 650, 480)
         self.root.title(name)
-        #self.root.style = Style()
-        #self.root.style.theme_use("clam")
-
-        # Initialize the menu
-        self.menu = Menu(self.root)
-        self.root.config(menu=self.menu)
 
         # Initialize the frame
         self.app = Frame(self.root)
@@ -27,15 +21,20 @@ class programm():
         # Initialize the current list
         self.current = []
 
-    def addMenu(self, label, function=None):
-        self.menuItem = Menu(self.menu, tearoff=0)
-        self.menu.add_cascade(label=label, menu=self.menuItem)
-        self.menuItem.add_command(label=label, command=function)
-        
+    def loadMenu(self):
+        self.menubar = Menu(self.root)
 
-    def addMenuFrame(self, label, frameFunction):
-        function = self.setFrame(frameFunction)
-        self.addMenu(label, function)
+        function = self.setFrame(planRequestFrame)
+        self.menu1 = Menu(self.menubar, tearoff=0)
+        self.menu1.add_command(label="Recherche de plan", command=function)
+        self.menubar.add_cascade(label="Fonction", menu=self.menu1)
+
+        self.menu2 = Menu(self.menubar, tearoff=0)
+        self.menu2.add_command(label="Aide", command=infoCommand)
+        self.menubar.add_cascade(label="A propos", menu=self.menu2)
+
+        self.root.config(menu=self.menubar)
+
 
     def setFrame(self, creationFunction):
         """ Change the current main frame of the programm
@@ -142,8 +141,8 @@ def listCommand(root):
 def infoCommand():
 
     top = Toplevel()
+    center(top, 400, 200)
     top.title("Informations")
-    top.geometry("400x200+750+400")
 
     infoMessage = '''
     Gestion de base de donnée pour matériel SNCF.
@@ -159,14 +158,15 @@ def infoCommand():
     button.pack(fill=BOTH, expand=1)
 
 
+def center(win, width, height):
+    x = (win.winfo_screenwidth() // 2) - (width // 2)
+    y = (win.winfo_screenheight() // 2) - (height // 2)
+    win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
 
 if __name__ == "__main__":
     main = programm("Plan Requester v0.2")
-    
-    main.addMenuFrame("Rechercher des plans", planRequestFrame)
-    main.addMenu("A propos", infoCommand)
-
+    main.loadMenu()
     main.launch()
 
 
