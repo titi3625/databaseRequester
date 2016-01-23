@@ -24,9 +24,11 @@ class programm():
     def loadMenu(self):
         self.menubar = Menu(self.root)
 
-        function = self.setFrame(planRequestFrame)
+        planRequestFrameFunction = self.setFrame(planRequestFrame)
+        #itemRequestFrameFunction = self.setFrame(itemRequestFrame)
         self.menu1 = Menu(self.menubar, tearoff=0)
-        self.menu1.add_command(label="Recherche de plan", command=function)
+        self.menu1.add_command(label="Recherche de plan", command=planRequestFrameFunction)
+        #self.menu1.add_command(label="Recherche de piece", command=itemRequestFrameFunction)
         self.menubar.add_cascade(label="Fonction", menu=self.menu1)
 
         self.menu2 = Menu(self.menubar, tearoff=0)
@@ -67,6 +69,7 @@ def planRequestFrame(root):
     plan = StringVar()
     searchEntry = Entry(searchFrame, textvariable=plan, width=30)
     searchEntry.pack(side=LEFT, padx=10, pady=10)
+    searchEntry.focus_set()
 
     # Ajout de la frame contenant les résultats
     resultFrame = Frame(app, width=800, height=600, borderwidth=0)
@@ -89,10 +92,18 @@ def planRequestFrame(root):
             content = plan.get()
 
             # nattoyage et decoupe de la chaine
-            content = content.replace(" ", "").split(',')
+            if content.find(",") == -1:
+                content = content.strip()
+                print("sans virgule : " + content)
+                listContent = [content]
+            else:
+                listContent = content.split(',')
+                for value in listContent:
+                    value = value.strip()
+                    print(value)
 
             # Perform the request
-            result, success, error = requests.requestPlanList(content)
+            result, success, error = requests.requestPlanList(listContent)
 
             # Format the output string
             result = [';'.join(t) for t in result]
@@ -114,6 +125,11 @@ def planRequestFrame(root):
             showerror("Erreur", "Vous devez saisir un numéro de plan")
             return False
 
+    def clear():
+        textbox.delete(1.0, END)
+        searchEntry.focus_set()
+
+
     def fun():
         result = getText(plan)
         if result != False:
@@ -122,6 +138,9 @@ def planRequestFrame(root):
     # Ajout du bouton de recherche
     searchButton = Button(searchFrame, text="Rechercher", command=fun)
     searchButton.pack(side=LEFT, padx=10, pady=10)
+
+    clearButton = Button(footFrame, text="Vider", command=clear)
+    clearButton.pack(side=RIGHT, padx=10, pady=10)
 
     return app
 
